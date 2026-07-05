@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 export async function signUp(prevState: any, formData: FormData) {
@@ -18,20 +17,10 @@ export async function signUp(prevState: any, formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: error.message }; // Return error to the client
   }
 
   if (data.user) {
-    // Create the matching row in your own User table,
-    // using the same id Supabase generated
-    await prisma.user.create({
-      data: {
-        id: data.user.id,
-        email: data.user.email!,
-        role: role as "RENTER" | "OWNER",
-      },
-    });
-
-    redirect("/home");
+    redirect("/home"); // This will now work because it's called directly
   }
 }
