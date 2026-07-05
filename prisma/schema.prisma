@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  RENTER
+  OWNER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(RENTER)
+  cars      Car[]    @relation("OwnerCars")
+  bookings  Booking[]
+  createdAt DateTime @default(now())
+}
+
+model Car {
+  id          String    @id @default(uuid())
+  make        String
+  model       String
+  year        Int
+  pricePerDay Float
+  ownerId     String
+  owner       User      @relation("OwnerCars", fields: [ownerId], references: [id])
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  carId     String
+  car       Car      @relation(fields: [carId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+}
